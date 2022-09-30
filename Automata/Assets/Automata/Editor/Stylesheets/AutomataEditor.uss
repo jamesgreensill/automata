@@ -1,0 +1,87 @@
+GridBackground {
+    --grid-background-color: rgb(38, 38, 38);
+    --line-color: rgba(193, 196, 192, 0.1);
+    --thick-line-color: rgba(193, 196, 192, 0.1) --spacing 100;
+}
+
+.automata-asset-button {
+    background-color: rgb(38, 38, 38);
+    flex-grow: 0;
+    border-left-color: rgb(196, 196, 196);
+    border-right-color: rgb(196, 196, 196);
+    border-top-color: rgb(196, 196, 196);
+    border-bottom-color: rgb(196, 196, 196);
+    border-left-width: 0;
+    border-right-width: 0;
+    border-top-width: 0;
+    border-bottom-width: 0;
+    min-width: 65px;
+    padding-left: 0;
+    padding-right: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    margin-left: 10px;
+    margin-right: 10px;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    border-top-left-radius: 15px;
+    border-bottom-left-radius: 15px;
+    border-top-right-radius: 15px;
+    border-bottom-right-radius: 15px;
+    background-image: url('/Assets/ThirdParty/Feel/NiceVibrations/Demo/_Common/Sprites/NV7Dots.png');
+    -unity-background-scale-mode: scale-and-crop;
+    min-height: 65px;
+}
+
+.automata-asset-button-selected {
+    background-color: rgb(38, 38, 38);
+    flex-grow: 0;
+    border-left-color: rgb(196, 196, 196);
+    border-right-color: rgb(196, 196, 196);
+    border-top-color: rgb(196, 196, 196);
+    border-bottom-color: rgb(196, 196, 196);
+    border-left-width: 1px;
+    border-right-width: 1px;
+    border-top-width: 1px;
+    border-bottom-width: 1px;
+    min-width: 65px;
+    padding-left: 0;
+    padding-right: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    margin-left: 10px;
+    margin-right: 10px;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    border-top-left-radius: 15px;
+    border-bottom-left-radius: 15px;
+    border-top-right-radius: 15px;
+    border-bottom-right-radius: 15px;
+    -unity-font-style: bold;
+    min-height: 75px;
+}
+
+.automata-label {
+    padding-left: 0;
+    padding-right: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    margin-left: 0;
+    margin-right: 0;
+    margin-top: 0;
+    margin-bottom: 0;
+    -unity-text-align: middle-center;
+    -unity-font-style: normal;
+    white-space: normal;
+}
+
+.automata-asset-label {
+    -unity-text-align: upper-center;
+    -unity-font-style: bold;
+}
+
+.automata-asset-label-selected {
+    -unity-text-align: upper-center;
+    -unity-font-style: bold;
+}
+

@@ -1,0 +1,24 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="True">
+    <Style src="AutomataEditor.uss" />
+    <TDC.Editor.SplitView fixed-pane-initial-dimension="300">
+        <ui:VisualElement name="left-element" style="flex-grow: 1; width: auto;">
+            <ui:Label text="Inspector" display-tooltip-when-elided="true" style="padding-left: 10px; padding-right: 0; padding-top: 0; padding-bottom: 0; background-color: rgb(53, 53, 53); min-height: 30px; -unity-text-align: middle-left;" />
+            <Automata.Editor.InspectorView style="flex-grow: 1; margin-left: 20px; margin-right: 20px;" />
+        </ui:VisualElement>
+        <ui:VisualElement name="right-element">
+            <ui:VisualElement style="flex-grow: 1; min-height: 10px;">
+                <ui:IMGUIContainer style="flex-direction: row; -unity-font-style: normal; flex-grow: 0; min-height: 25px;">
+                    <ui:Label text="Editor" display-tooltip-when-elided="true" class="automata-label" style="padding-left: 10px; padding-right: 0; padding-top: 0; padding-bottom: 0; background-color: rgb(53, 53, 53); width: 50px; margin-left: 0; margin-right: 0; margin-top: 0; margin-bottom: 0; min-height: 30px; flex-grow: 0; -unity-text-align: middle-left;" />
+                    <ui:Label text="Currently Editing:" display-tooltip-when-elided="true" name="currently-editing" class="automata-label" style="padding-left: 10px; padding-right: 10px; padding-top: 0; padding-bottom: 0; background-color: rgb(53, 53, 53); margin-left: 0; margin-right: 0; margin-top: 0; margin-bottom: 0; flex-grow: 0; min-width: auto; min-height: 30px;" />
+                </ui:IMGUIContainer>
+                <Automata.Editor.TreeView focusable="true" style="flex-grow: 1;" />
+            </ui:VisualElement>
+            <ui:VisualElement style="min-height: 200px;">
+                <ui:Label text="Assets" display-tooltip-when-elided="true" style="padding-left: 10px; padding-right: 0; padding-top: 0; padding-bottom: 0; background-color: rgb(53, 53, 53); min-height: 30px; -unity-text-align: middle-left;" />
+                <Automata.Editor.AssetView style="flex-grow: 1; margin-left: 50px; margin-right: 50px;">
+                    <ui:ScrollView name="asset-view" mode="Horizontal" style="flex-grow: 1;" />
+                </Automata.Editor.AssetView>
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </TDC.Editor.SplitView>
+</ui:UXML>
