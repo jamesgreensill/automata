@@ -1,6 +1,6 @@
-using System.Collections.Generic;
 using Automata.Core.Types;
 using Automata.Core.Utility.Extensions;
+using System.Collections.Generic;
 using UnityEngine.UIElements;
 
 namespace Automata.Editor
@@ -33,7 +33,7 @@ namespace Automata.Editor
             {
                 AssetItemView assetItemView = new AssetItemView(asset, (tree) =>
                     {
-                        _AutomataEditor.ChangeTree(tree);
+                        AutomataEditor.Instance.ChangeTree(tree);
                         _UpdateSelection();
                     }
                 );
@@ -49,7 +49,7 @@ namespace Automata.Editor
         {
             foreach (var itemAsset in _ItemAssets)
             {
-                if (itemAsset.Tree == _AutomataEditor.CurrentTree)
+                if (itemAsset.Tree == AutomataEditor.Instance.CurrentTree)
                 {
                     itemAsset.Button.AddToClassList("automata-asset-button-selected");
                     itemAsset.Label.AddToClassList("automata-asset-label-selected");

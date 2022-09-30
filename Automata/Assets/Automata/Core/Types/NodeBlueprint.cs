@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Automata.Core.Types.Interfaces;
+using UnityEditor;
 using UnityEngine;
 
 #if UNITY_EDITOR
@@ -19,7 +20,7 @@ namespace Automata.Core.Types
         }
 
         public NodeBlueprint Base => this;
-        public List<INode<NodeBlueprint>> Children { get; set; }
+        public List<INode<NodeBlueprint>> Children { get; set; } = new List<INode<NodeBlueprint>>();
 
         public Vector2 GraphPosition;
         public NodeMetadata Metadata;
@@ -64,6 +65,16 @@ namespace Automata.Core.Types
         public Port CreatePort<T>(UnityEditor.Experimental.GraphView.Node node, Orientation orientation,
             Direction direction, Port.Capacity capacity, string portName = "")
             => CreatePort(typeof(T), node, orientation, direction, capacity, name);
+
+        public static NodeBlueprint CreateFromType(Type type)
+        {
+            NodeBlueprint nodeBlueprint = CreateInstance<NodeBlueprint>();
+            nodeBlueprint.NodeType = type;
+            nodeBlueprint.name = $"ANBP_{type}";
+            nodeBlueprint.Guid = GUID.Generate().ToString();
+
+            return nodeBlueprint;
+        }
 
 #endif
     }

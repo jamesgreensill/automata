@@ -12,6 +12,7 @@ using UnityEditor;
 
 namespace Automata.Core.Types
 {
+    [CreateAssetMenu(fileName = "TreeBlueprint", menuName = "Automata/TreeBlueprint")]
     public class TreeBlueprint : ScriptableObject, ITree<NodeBlueprint>
     {
         public NodeBlueprint Root;
@@ -21,11 +22,9 @@ namespace Automata.Core.Types
 
         public NodeBlueprint CreateNode(Type type, Vector2 graphPosition)
         {
-            NodeBlueprint nodeBlueprint = CreateInstance(type) as NodeBlueprint;
+            NodeBlueprint nodeBlueprint = NodeBlueprint.CreateFromType(type);
             if (nodeBlueprint != null)
             {
-                nodeBlueprint.name = type.Name;
-                nodeBlueprint.Guid = GUID.Generate().ToString();
                 nodeBlueprint.GraphPosition = graphPosition;
                 Nodes.Add(nodeBlueprint);
 
@@ -88,7 +87,7 @@ namespace Automata.Core.Types
         {
             if (node != null)
             {
-                node.Traverse((nodee)=>{});
+                node.Traverse((nodee) => { });
 
                 visitor?.Invoke(node);
                 INode<NodeBlueprint>[] children = node.GetChildren();

@@ -6,10 +6,16 @@ namespace Automata.Core.Types.Attributes
     [AttributeUsage(AttributeTargets.Class)]
     public class CategoryAttribute : Attribute
     {
-        public string Name { get; set; }
+        public Type Type;
+        public string Name;
 
-        public CategoryAttribute(string name)
+        public CategoryAttribute(Type type) : this(type, type.Name)
         {
+        }
+
+        public CategoryAttribute(Type type, string name)
+        {
+            Type = type;
             Name = name;
         }
     }

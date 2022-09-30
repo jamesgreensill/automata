@@ -55,28 +55,28 @@ namespace Automata.Editor
 
         private void _CreateOutputPorts()
         {
-            Port[] ports = Node.GetOutputPorts(this);
-
-            foreach (var port in ports)
-            {
-                if (port != null)
-                {
-                    OutputPorts = ports;
-                    outputContainer.Add(port);
-                }
-            }
+           // Port[] ports = Node.GetOutputPorts(this);
+           //
+           // foreach (var port in ports)
+           // {
+           //     if (port != null)
+           //     {
+           //         OutputPorts = ports;
+           //         outputContainer.Add(port);
+           //     }
+           // }
         }
 
         private void _CreateInputPorts()
         {
-            Port[] ports = Node.GetInputPorts(this);
+            // Port[] ports = Node.GetInputPorts(this);
 
-            foreach (var port in ports)
-            {
-                if (port == null) continue;
-                InputPorts = ports;
-                inputContainer.Add(port);
-            }
+            // foreach (var port in ports)
+            // {
+            //     if (port == null) continue;
+            //     InputPorts = ports;
+            //     inputContainer.Add(port);
+            // }
         }
 
         /*

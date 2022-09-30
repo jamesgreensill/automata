@@ -1,18 +1,9 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+using Automata.Core.Types.Attributes;
 
-public class Log : MonoBehaviour
+public class Log : Composite
 {
-    // Start is called before the first frame update
-    void Start()
+    protected override State OnUpdate()
     {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
+        throw new System.NotImplementedException();
     }
 }

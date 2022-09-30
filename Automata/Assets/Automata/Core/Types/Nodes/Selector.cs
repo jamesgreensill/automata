@@ -1,18 +1,11 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+using Automata.Core.Types;
+using Automata.Core.Types.Attributes;
 
-public class Selector : MonoBehaviour
+[Category(typeof(Selector), "Selector")]
+public class Selector : Node
 {
-    // Start is called before the first frame update
-    void Start()
+    protected override State OnUpdate()
     {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
+        throw new System.NotImplementedException();
     }
 }
