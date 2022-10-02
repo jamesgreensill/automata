@@ -100,7 +100,7 @@ namespace Automata.Editor
                         IActivator activator = Selection.activeGameObject.GetComponent<IActivator>();
                         if (activator != null)
                         {
-                            tree = activator.Tree.Blueprint;
+                            tree = activator.RuntimeTree.Blueprint;
                         }
                     }
                 }

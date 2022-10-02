@@ -54,7 +54,7 @@ namespace Automata.Editor
              *  PURPOSE: BLACKBOARD VISUAL EDITOR
              *  ARCHIVED BY: JAMES GREENSILL
              */
-            // _CreateBlackboard(tree);
+            // _CreateBlackboard(runtimeTree);
         }
 
         public override List<Port> GetCompatiblePorts(Port startPort, NodeAdapter nodeAdapter) => ports.ToList().Where(endPort => endPort.direction != startPort.direction && endPort != startPort).ToList();
@@ -107,9 +107,9 @@ namespace Automata.Editor
             //     return;
             // }
             //
-            // List<Node> children = node.GetChildren();
+            // List<RuntimeNode> children = node.GetChildren();
             //
-            // foreach (Node child in children)
+            // foreach (RuntimeNode child in children)
             // {
             //     NodeView parentView = _FindNodeView(node);
             //     NodeView childView = _FindNodeView(child);
@@ -171,7 +171,7 @@ namespace Automata.Editor
                 if (node is NodeView view)
                 {
                     view.SortChildren(NodeView.SortByVerticalPosition);
-                    // if (view.Node is Composite composite)
+                    // if (view.RuntimeNode is Composite composite)
                     // {
                     //     for (int i = 0; i < composite.Children.Count; i++)
                     //     {
@@ -182,7 +182,7 @@ namespace Automata.Editor
                     //         }
                     //     }
                     //
-                    //     view.title = view.Node.name + $" - [{composite.Children.Count}]";
+                    //     view.title = view.RuntimeNode.name + $" - [{composite.Children.Count}]";
                     // }
                 }
             });
@@ -287,7 +287,7 @@ namespace Automata.Editor
         //     }
         // }
 
-        // private void _CreateBlackboard(Tree tree)
+        // private void _CreateBlackboard(RuntimeTree runtimeTree)
         // {
         //    // if (_Blackboard != null)
         //    // {
@@ -295,11 +295,11 @@ namespace Automata.Editor
         //    //     Add(_Blackboard);
         //    //     return;
         //    // }
-        //    // tree.BlackboardContainer = tree.CreateBlackboard();
+        //    // runtimeTree.BlackboardContainer = runtimeTree.CreateBlackboard();
         //    //
         //    // _Blackboard = new BlackboardView(this);
         //    // _Blackboard.Initialize(_EditorWindow);
-        //    // //_Blackboard.PopulateBlackboard(tree.BlackboardContainer);
+        //    // //_Blackboard.PopulateBlackboard(runtimeTree.BlackboardContainer);
         //    //
         //    // Add(_Blackboard);
         // }

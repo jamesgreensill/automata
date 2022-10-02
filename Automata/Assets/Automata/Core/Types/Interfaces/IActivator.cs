@@ -11,24 +11,24 @@ namespace Automata.Core.Types.Interfaces
         public GameObject SceneObject { get; }
 
         /// <summary>
-        /// Tree this Activator will evalulate.
+        /// RuntimeTree this Activator will evalulate.
         /// </summary>
-        public Tree Tree { get; set; }
+        public RuntimeTree RuntimeTree { get; set; }
 
         /// <summary>
-        /// Before the Tree is evaluated.
+        /// Before the RuntimeTree is evaluated.
         /// </summary>
         public Action OnPreActivated { get; set; }
 
         /// <summary>
-        /// After the Tree is evaluated.
+        /// After the RuntimeTree is evaluated.
         /// </summary>
-        public Action<Node.State> OnActivated { get; set; }
+        public Action<RuntimeNode.State> OnActivated { get; set; }
 
         /// <summary>
-        /// Ping this Activator to Evaluate the Tree.
+        /// Ping this Activator to Evaluate the RuntimeTree.
         /// </summary>
-        /// <returns>Tree Evaluation</returns>
-        public Node.State Activate();
+        /// <returns>RuntimeTree Evaluation</returns>
+        public RuntimeNode.State Activate();
     }
 }

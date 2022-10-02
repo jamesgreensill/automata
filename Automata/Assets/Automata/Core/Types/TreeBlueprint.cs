@@ -59,27 +59,27 @@ namespace Automata.Core.Types
             return false;
         }
 
-        public Tree CreateRuntimeTree()
+        public RuntimeTree CreateRuntimeTree()
         {
             if (Root != null)
             {
-                Tree tree = new Tree();
-                tree.Root = tree.CreateNode(Root.NodeType);
+                RuntimeTree runtimeTree = new RuntimeTree();
+                runtimeTree.Root = runtimeTree.CreateNode(Root.NodeType);
 
-                CreateNodeRecursive(Root, tree.Root, ref tree);
+                CreateNodeRecursive(Root, runtimeTree.Root, ref runtimeTree);
             }
 
             return null;
         }
 
-        public static void CreateNodeRecursive(NodeBlueprint nodeBlueprint, Node parent, ref Tree tree)
+        public static void CreateNodeRecursive(NodeBlueprint nodeBlueprint, RuntimeNode parent, ref RuntimeTree runtimeTree)
         {
             var children = nodeBlueprint.GetChildren();
             foreach (var child in children)
             {
-                Node node = tree.CreateNode(child.Base.NodeType);
-                parent.AddChild(node);
-                CreateNodeRecursive(child.Base, node, ref tree);
+                RuntimeNode runtimeNode = runtimeTree.CreateNode(child.Base.NodeType);
+                parent.AddChild(runtimeNode);
+                CreateNodeRecursive(child.Base, runtimeNode, ref runtimeTree);
             }
         }
 

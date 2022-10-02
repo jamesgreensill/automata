@@ -4,6 +4,7 @@ using Automata.Core.Types.Interfaces;
 using UnityEditor;
 using UnityEngine;
 
+
 #if UNITY_EDITOR
 
 using UnityEditor.Experimental.GraphView;
@@ -41,12 +42,12 @@ namespace Automata.Core.Types
 
         public virtual Capabilities GetCapabilities(UnityEditor.Experimental.GraphView.Node node) => node.capabilities;
 
-        public Port[] GetInputPorts(UnityEditor.Experimental.GraphView.Node node)
+        public RuntimePort[] GetInputPorts(UnityEditor.Experimental.GraphView.Node node)
         {
             return null;
         }
 
-        public Port[] GetOutputPorts(UnityEditor.Experimental.GraphView.Node node)
+        public RuntimePort[] GetOutputPorts(UnityEditor.Experimental.GraphView.Node node)
         {
             return null;
         }
@@ -54,12 +55,12 @@ namespace Automata.Core.Types
         public Port CreatePort(Type type, UnityEditor.Experimental.GraphView.Node node, Orientation orientation,
             Direction direction, Port.Capacity capacity, string portName = "")
         {
-            Port port = node.InstantiatePort(orientation, direction, capacity, type);
-            if (port != null)
+            Port runtimePort = node.InstantiatePort(orientation, direction, capacity, type);
+            if (runtimePort != null)
             {
-                port.portName = portName;
+                runtimePort.portName = portName;
             }
-            return port;
+            return runtimePort;
         }
 
         public Port CreatePort<T>(UnityEditor.Experimental.GraphView.Node node, Orientation orientation,

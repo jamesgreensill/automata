@@ -35,15 +35,15 @@ namespace Automata.Editor
         {
             var tree = new List<SearchTreeEntry>
             {
-                new SearchTreeGroupEntry(new GUIContent("Create Node"), 0)
+                new SearchTreeGroupEntry(new GUIContent("Create RuntimeNode"), 0)
             };
 
             // Get every type derived from node that is abstract and has the Category attribute.
-            // Add Type to Tree
+            // Add Type to RuntimeTree
             // For every attribute get every type inherited from the type that contains that attribute.
-            // Add every type to search tree
+            // Add every type to search runtimeTree
 
-            var types = TypeEx.GetDerivedTypes(typeof(Automata.Core.Types.Node)).Where(t => t.IsAbstract);
+            var types = TypeEx.GetDerivedTypes(typeof(Automata.Core.Types.RuntimeNode)).Where(t => t.IsAbstract);
 
             List<CategoryAttribute> categories = new List<CategoryAttribute>();
             foreach (var type in types)

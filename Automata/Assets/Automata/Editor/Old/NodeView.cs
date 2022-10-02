@@ -55,7 +55,7 @@ namespace Automata.Editor
 
         private void _CreateOutputPorts()
         {
-           // Port[] ports = Node.GetOutputPorts(this);
+           // Port[] ports = RuntimeNode.GetOutputPorts(this);
            //
            // foreach (var port in ports)
            // {
@@ -69,7 +69,7 @@ namespace Automata.Editor
 
         private void _CreateInputPorts()
         {
-            // Port[] ports = Node.GetInputPorts(this);
+            // Port[] ports = RuntimeNode.GetInputPorts(this);
 
             // foreach (var port in ports)
             // {
@@ -97,13 +97,13 @@ namespace Automata.Editor
         // private List<Port> _GetBlackboardPorts()
         // {
         //    // List<Port> ports = new List<Port>();
-        //    // var fields = Node.GetType().GetFields();
+        //    // var fields = RuntimeNode.GetType().GetFields();
         //    // foreach (var property in fields)
         //    // {
         //    //     var attributes = property.GetCustomAttributes<InputPortValueAttribute>(true);
         //    //     foreach (var attribute in attributes)
         //    //     {
-        //    //         ports.Add(Node.CreatePort(property.FieldType, this, Orientation.Horizontal, Direction.Input, Port.Capacity.Single, property.Name));
+        //    //         ports.Add(RuntimeNode.CreatePort(property.FieldType, this, Orientation.Horizontal, Direction.Input, Port.Capacity.Single, property.Name));
         //    //     }
         //    // }
         //    //
