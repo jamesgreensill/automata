@@ -28,6 +28,7 @@ GridBackground {
     border-bottom-left-radius: 15px;
     border-top-right-radius: 15px;
     border-bottom-right-radius: 15px;
+    background-image: url('/Assets/ThirdParty/Feel/NiceVibrations/Demo/_Common/Sprites/NV7Dots.png');
     -unity-background-scale-mode: scale-and-crop;
     min-height: 65px;
 }

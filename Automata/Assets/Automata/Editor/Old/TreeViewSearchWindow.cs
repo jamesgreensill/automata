@@ -63,7 +63,7 @@ namespace Automata.Editor
                     )
                     {
                         level = 2,
-                        userData = derivedType
+                        userData = $"{derivedType.FullName}"
                     });
                 }
             }
@@ -73,13 +73,13 @@ namespace Automata.Editor
 
         public bool OnSelectEntry(SearchTreeEntry searchTreeEntry, SearchWindowContext context)
         {
-            if (searchTreeEntry.userData is Type type)
+            if (searchTreeEntry.userData is string typeString)
             {
                 Vector2 mousePosition = _EditorWindow.rootVisualElement.ChangeCoordinatesTo(
                     _EditorWindow.rootVisualElement.parent, context.screenMousePosition - _EditorWindow.position.position);
 
                 Vector2 graphMousePosition = _TreeView.contentViewContainer.WorldToLocal((mousePosition));
-                NodeBlueprint node = _TreeView.CreateNode(type, graphMousePosition);
+                NodeBlueprint node = _TreeView.CreateNode(typeString, graphMousePosition);
 
                 return node != null;
             }

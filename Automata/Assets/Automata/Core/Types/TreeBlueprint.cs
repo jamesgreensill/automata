@@ -20,9 +20,9 @@ namespace Automata.Core.Types
 
 #if UNITY_EDITOR
 
-        public NodeBlueprint CreateNode(Type type, Vector2 graphPosition)
+        public NodeBlueprint CreateNode(string typeString, Vector2 graphPosition)
         {
-            NodeBlueprint nodeBlueprint = NodeBlueprint.CreateFromType(type);
+            NodeBlueprint nodeBlueprint = NodeBlueprint.CreateFromType(typeString);
             if (nodeBlueprint != null)
             {
                 nodeBlueprint.GraphPosition = graphPosition;
@@ -49,7 +49,7 @@ namespace Automata.Core.Types
 
         public bool CreateRoot()
         {
-            NodeBlueprint nodeBlueprint = CreateNode(typeof(EntryPoint), Vector2.zero);
+            NodeBlueprint nodeBlueprint = CreateNode(typeof(EntryPoint).FullName, Vector2.zero);
             if (nodeBlueprint != null)
             {
                 Root = nodeBlueprint;

@@ -1,12 +1,14 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 using Automata.Core.Types.Interfaces;
 using UnityEditor;
 using UnityEngine;
 
-
 #if UNITY_EDITOR
 
+using Automata.Core.Types.Attributes;
 using UnityEditor.Experimental.GraphView;
 
 #endif
@@ -23,11 +25,40 @@ namespace Automata.Core.Types
         public NodeBlueprint Base => this;
         public List<INode<NodeBlueprint>> Children { get; set; } = new List<INode<NodeBlueprint>>();
 
-        public Vector2 GraphPosition;
-        public NodeMetadata Metadata;
-        public bool ShouldDrawGizmos;
-        public string Guid;
-        public Type NodeType;
+        public List<PortBlueprint> InputPorts = new List<PortBlueprint>();
+
+        public PortBlueprint OutputPort;
+
+        [SerializeField] public Vector2 GraphPosition;
+        [SerializeField] public NodeMetadata Metadata;
+        [SerializeField] public bool ShouldDrawGizmos;
+        [SerializeField] public string Guid;
+
+        public Type NodeType
+        {
+            get
+            {
+                if (_NodeType == null)
+                {
+                    var type = Type.GetType(TypeReflectionAddress);
+                    if (type != null)
+                    {
+                        return _NodeType = type;
+                    }
+                    // TODO: Debug Error.
+                }
+                return _NodeType;
+            }
+            set
+            {
+                TypeReflectionAddress = value.FullName;
+                _NodeType = value;
+            }
+        }
+
+        private Type _NodeType;
+
+        internal string TypeReflectionAddress;
 
         public INode<NodeBlueprint>[] GetChildren() => Children.ToArray();
 
@@ -38,43 +69,59 @@ namespace Automata.Core.Types
 #if UNITY_EDITOR
         public Capabilities Capabilites;
 
-        public virtual bool IsDeletable(UnityEditor.Experimental.GraphView.Node node) => GetCapabilities(node).HasFlag(Capabilities.Deletable);
+        public virtual bool IsDeletable(Node node) =>
+            GetCapabilities(node).HasFlag(Capabilities.Deletable);
 
-        public virtual Capabilities GetCapabilities(UnityEditor.Experimental.GraphView.Node node) => node.capabilities;
+        public virtual Capabilities GetCapabilities(Node node) => node.capabilities;
 
-        public RuntimePort[] GetInputPorts(UnityEditor.Experimental.GraphView.Node node)
+        public Port[] GetInputPorts(Node node)
         {
-            return null;
+            return InputPorts
+                .Select(inputPort => CreatePort(inputPort, node, Orientation.Horizontal))
+                .ToArray();
         }
 
-        public RuntimePort[] GetOutputPorts(UnityEditor.Experimental.GraphView.Node node)
+        public Port GetOutputPort(Node node) => CreatePort(OutputPort, node, Orientation.Horizontal);
+
+        public Port CreatePort(PortBlueprint portBlueprint, Node node, Orientation orientation)
         {
-            return null;
+            Direction direction =
+                portBlueprint.Direction == PortDirection.Input ? Direction.Input : Direction.Output;
+            Port.Capacity capacity = portBlueprint.Capacity == PortCapacity.Single ? Port.Capacity.Single : Port.Capacity.Multi;
+            Port port = node.InstantiatePort(orientation, direction, capacity, portBlueprint.Type);
+            port.portName = portBlueprint.Name;
+            return port;
         }
 
-        public Port CreatePort(Type type, UnityEditor.Experimental.GraphView.Node node, Orientation orientation,
-            Direction direction, Port.Capacity capacity, string portName = "")
+        public static NodeBlueprint CreateFromType(string typeString)
         {
-            Port runtimePort = node.InstantiatePort(orientation, direction, capacity, type);
-            if (runtimePort != null)
-            {
-                runtimePort.portName = portName;
-            }
-            return runtimePort;
-        }
+            var nodeBlueprint = CreateInstance<NodeBlueprint>();
 
-        public Port CreatePort<T>(UnityEditor.Experimental.GraphView.Node node, Orientation orientation,
-            Direction direction, Port.Capacity capacity, string portName = "")
-            => CreatePort(typeof(T), node, orientation, direction, capacity, name);
-
-        public static NodeBlueprint CreateFromType(Type type)
-        {
-            NodeBlueprint nodeBlueprint = CreateInstance<NodeBlueprint>();
-            nodeBlueprint.NodeType = type;
-            nodeBlueprint.name = $"ANBP_{type}";
+            nodeBlueprint.TypeReflectionAddress = typeString;
+            nodeBlueprint.name = $"ANBP_{nodeBlueprint.NodeType.Name}";
             nodeBlueprint.Guid = GUID.Generate().ToString();
 
+            nodeBlueprint.ReloadPorts();
+
             return nodeBlueprint;
+        }
+
+        public void ReloadPorts()
+        {
+            InputPorts = new List<PortBlueprint>()
+            {
+                new PortBlueprint(typeof(NodeBlueprint), "Input", PortDirection.Input, PortCapacity.Multi)
+            };
+            OutputPort =
+                new PortBlueprint(typeof(NodeBlueprint), "Output", PortDirection.Output, PortCapacity.Multi);
+            foreach (FieldInfo fieldInfo in NodeType.GetFields())
+            {
+                IEnumerable<PortAttribute> attributes = fieldInfo.GetCustomAttributes<PortAttribute>();
+                foreach (PortAttribute attribute in attributes)
+                {
+                    InputPorts.Add(new PortBlueprint(fieldInfo.FieldType, fieldInfo.Name, PortDirection.Input, PortCapacity.Single));
+                }
+            }
         }
 
 #endif

@@ -10,6 +10,7 @@ namespace Automata.Editor
     public class AutomataEditor : EditorWindow<AutomataEditor>
     {
         internal TreeBlueprint CurrentTree;
+        internal bool DoReload;
 
         private TreeView _TreeView;
         private InspectorView _InspectorView;
@@ -72,15 +73,24 @@ namespace Automata.Editor
             _TreeView.Initialize();
             _AssetView.Initialize();
 
+            Instance.DoReload = true;
+            Reload();
+            Instance.DoReload = false;
+
             // Ping editor to update.
             OnSelectionChange();
         }
 
         internal void ChangeTree(TreeBlueprint tree)
         {
+            if (tree == null)
+            {
+                return;
+            }
             CurrentTree = tree;
             _TreeView.PopulateTree(CurrentTree);
             _CurrentlyEditingLabel.text = $"Currently Editing: {CurrentTree.name}";
+            _AssetView.OnSelectionChanged();
         }
 
         internal void OnNodeSelectionChange(NodeView nodeView)
@@ -108,7 +118,6 @@ namespace Automata.Editor
                 if (tree != null)
                 {
                     ChangeTree(tree);
-                    _AssetView.OnSelectionChanged();
                 }
             };
         }
@@ -123,6 +132,17 @@ namespace Automata.Editor
         private void OnDisable()
         {
             EditorApplication.playModeStateChanged -= _OnPlayModeStateChanged;
+        }
+
+        private void Reload()
+        {
+            SaveTree();
+            ChangeTree(CurrentTree);
+        }
+
+        private void SaveTree()
+        {
+            _TreeView.Save();
         }
 
         private void _OnPlayModeStateChanged(PlayModeStateChange change)

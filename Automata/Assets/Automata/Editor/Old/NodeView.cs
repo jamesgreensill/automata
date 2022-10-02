@@ -11,7 +11,7 @@ namespace Automata.Editor
         public Action<NodeView> OnNodeSelected;
         public NodeBlueprint Node;
         public Port[] InputPorts;
-        public Port[] OutputPorts;
+        public Port OutputPort;
 
         public NodeView(NodeBlueprint node)
         {
@@ -55,28 +55,29 @@ namespace Automata.Editor
 
         private void _CreateOutputPorts()
         {
-           // Port[] ports = RuntimeNode.GetOutputPorts(this);
-           //
-           // foreach (var port in ports)
-           // {
-           //     if (port != null)
-           //     {
-           //         OutputPorts = ports;
-           //         outputContainer.Add(port);
-           //     }
-           // }
+            Port port = Node.GetOutputPort(this);
+
+            if (port != null)
+            {
+                OutputPort = port;
+                outputContainer.Add(port);
+            }
         }
 
         private void _CreateInputPorts()
         {
-            // Port[] ports = RuntimeNode.GetInputPorts(this);
+            if (AutomataEditor.Instance.DoReload)
+            {
+                Node.ReloadPorts();
+            }
+            Port[] ports = Node.GetInputPorts(this);
 
-            // foreach (var port in ports)
-            // {
-            //     if (port == null) continue;
-            //     InputPorts = ports;
-            //     inputContainer.Add(port);
-            // }
+            foreach (var port in ports)
+            {
+                if (port == null) continue;
+                InputPorts = ports;
+                inputContainer.Add(port);
+            }
         }
 
         /*

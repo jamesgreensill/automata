@@ -1,4 +1,5 @@
 using Automata.Core.Types;
+using Automata.Core.Utility.Extensions;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
@@ -57,11 +58,24 @@ namespace Automata.Editor
             // _CreateBlackboard(runtimeTree);
         }
 
+        public void Save()
+        {
+            if (_CurrentTree != null)
+            {
+                _CurrentTree.Root.Traverse((node) =>
+                {
+                    EditorUtility.SetDirty(node.Base);
+                });
+                EditorUtility.SetDirty(_CurrentTree);
+                AssetDatabase.SaveAssets();
+            }
+        }
+
         public override List<Port> GetCompatiblePorts(Port startPort, NodeAdapter nodeAdapter) => ports.ToList().Where(endPort => endPort.direction != startPort.direction && endPort != startPort).ToList();
 
-        public NodeBlueprint CreateNode(System.Type type, Vector2 graphMousePosition, System.Action<NodeBlueprint> creationDelegate = null)
+        public NodeBlueprint CreateNode(string typeString, Vector2 graphMousePosition, System.Action<NodeBlueprint> creationDelegate = null)
         {
-            NodeBlueprint node = _CurrentTree.CreateNode(type, graphMousePosition);
+            NodeBlueprint node = _CurrentTree.CreateNode(typeString, graphMousePosition);
             if (node != null)
             {
                 creationDelegate?.Invoke(node);
@@ -86,6 +100,8 @@ namespace Automata.Editor
 
         private void _CreateTree(TreeBlueprint tree)
         {
+            if (tree == null)
+                return;
             _CurrentTree = tree;
             _CurrentTree.Nodes.ForEach(_CreateNodeView);
             _CurrentTree.Nodes.ForEach(_CreateEdge);
@@ -116,7 +132,7 @@ namespace Automata.Editor
             //
             //     if (parentView != null & childView != null)
             //     {
-            //         Edge edge = parentView.OutputPort.ConnectTo(childView.InputPort);
+            //         Edge edge = parentView.OutputPortBlueprint.ConnectTo(childView.InputPortBlueprint);
             //         AddElement(edge);
             //     }
             // }
