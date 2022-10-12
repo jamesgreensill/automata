@@ -1,6 +1,8 @@
 using Automata.Core.Types;
 using Automata.Core.Utility.Extensions;
+
 using System.Collections.Generic;
+
 using UnityEngine.UIElements;
 
 namespace Automata.Editor
@@ -10,18 +12,19 @@ namespace Automata.Editor
         public new class UxmlFactory : UxmlFactory<AssetView, UxmlTraits>
         { }
 
+        public List<AssetItemView> ItemAssets = new List<AssetItemView>();
         private ScrollView _ScrollView;
-        private AutomataEditor _AutomataEditor;
-
-        private List<AssetItemView> _ItemAssets = new List<AssetItemView>();
 
         public void Initialize()
         {
             _ScrollView = this.Q<ScrollView>("asset-view");
+
+            AutomataEditor.Instance.OnTreeChanged += OnTreeChanged;
+
             _SetupAssetView();
         }
 
-        public void OnSelectionChanged()
+        public void OnTreeChanged(TreeBlueprint oldTree, TreeBlueprint newTree)
         {
             _UpdateSelection();
         }
@@ -40,23 +43,23 @@ namespace Automata.Editor
                 assetItemView.Button.AddToClassList("automata-asset-button");
                 assetItemView.Label.AddToClassList("automata-asset-label");
 
-                _ItemAssets.Add(assetItemView);
+                ItemAssets.Add(assetItemView);
                 _ScrollView.Add(assetItemView);
             }
         }
 
         private void _UpdateSelection()
         {
-            foreach (var itemAsset in _ItemAssets)
+            foreach (AssetItemView itemAsset in ItemAssets)
             {
                 if (itemAsset.Tree == AutomataEditor.Instance.CurrentTree)
                 {
-                    itemAsset.Button.AddToClassList("automata-asset-button-selected");
-                    itemAsset.Label.AddToClassList("automata-asset-label-selected");
+                    itemAsset.Button.AddToClassList(AutomataEditor.Settings.AssetViewSettings.AssetButtonSelectedId);
+                    itemAsset.Label.AddToClassList(AutomataEditor.Settings.AssetViewSettings.AssetLabelSelectedId);
                     continue;
                 }
-                itemAsset.Button.RemoveFromClassList("automata-asset-button-selected");
-                itemAsset.Button.RemoveFromClassList("automata-asset-label-selected");
+                itemAsset.Button.RemoveFromClassList(AutomataEditor.Settings.AssetViewSettings.AssetButtonSelectedId);
+                itemAsset.Button.RemoveFromClassList(AutomataEditor.Settings.AssetViewSettings.AssetLabelSelectedId);
             }
         }
     }

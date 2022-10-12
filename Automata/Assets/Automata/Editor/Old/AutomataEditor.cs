@@ -1,5 +1,6 @@
 using Automata.Core.Types;
 using Automata.Core.Types.Interfaces;
+using System;
 using UnityEditor;
 using UnityEditor.Callbacks;
 using UnityEngine;
@@ -9,27 +10,38 @@ namespace Automata.Editor
 {
     public class AutomataEditor : EditorWindow<AutomataEditor>
     {
-        internal TreeBlueprint CurrentTree;
-        internal bool DoReload;
+        public Action<TreeBlueprint, TreeBlueprint> OnTreeChanged;
 
-        private TreeView _TreeView;
-        private InspectorView _InspectorView;
-        private AssetView _AssetView;
-        private Label _CurrentlyEditingLabel;
+        public TreeView TreeView;
+        public InspectorView InspectorView;
+        public AssetView AssetView;
+        public Label CurrentlyEditingLabel;
+
+        public TreeBlueprint CurrentTree;
+        public bool DoReload;
+
+        public static AutomataEditorSettings Settings
+        {
+            get
+            {
+                if (Instance._Settings == null)
+                {
+                    if (!AutomataEditorSettings.LoadSettings(out Instance._Settings))
+                    {
+                        Instance.Close();
+                    }
+                }
+
+                return Instance._Settings;
+            }
+        }
+
         private AutomataEditorSettings _Settings;
-
-        /*
-         *  ARCHIVED CODE
-         *  PURPOSE: BLACKBOARD VISUAL EDITOR
-         *  ARCHIVED BY: JAMES GREENSILL
-         */
-        // private BlackboardView _BlackboardView;
 
         [MenuItem("Automata/Editor")]
         public static void OpenWindow()
         {
             Instance.titleContent = new GUIContent("Automata Editor");
-            Instance.LoadSettings();
         }
 
         [OnOpenAsset]
@@ -43,35 +55,36 @@ namespace Automata.Editor
             return false;
         }
 
-        public void CreateGUI()
+        internal void ChangeTree(TreeBlueprint tree)
         {
-            if (_Settings == null)
+            if (tree == null)
             {
-                LoadSettings();
+                return;
             }
+            TreeBlueprint oldTree = CurrentTree;
+            CurrentTree = tree;
+            OnTreeChanged?.Invoke(oldTree, CurrentTree);
 
+            CurrentlyEditingLabel.text = $"Currently Editing: {CurrentTree.name}";
+        }
+
+        protected override void OnEditorCreate()
+        {
             VisualElement root = rootVisualElement;
 
             // Set the editor settings.
-            var visualTree = _Settings.AutomataUxml;
-            root.styleSheets.Add(_Settings.AutomataUss);
-
+            var visualTree = Settings.EditorSettings.AutomataUxml;
             visualTree.CloneTree(root);
+            root.styleSheets.Add(Settings.EditorSettings.AutomataUss);
 
-            _TreeView = root.Q<TreeView>();
-            _AssetView = root.Q<AssetView>();
-            _InspectorView = root.Q<InspectorView>();
-            _CurrentlyEditingLabel = root.Q<Label>("currently-editing");
+            TreeView = root.Q<TreeView>();
+            AssetView = root.Q<AssetView>();
+            InspectorView = root.Q<InspectorView>();
+            CurrentlyEditingLabel = root.Q<Label>("currently-editing");
 
-            /*
-             *  ARCHIVED CODE
-             *  PURPOSE: BLACKBOARD VISUAL EDITOR
-             *  ARCHIVED BY: JAMES GREENSILL
-             */
-            // _BlackboardView = root.Q<BlackboardView>();
-
-            _TreeView.Initialize();
-            _AssetView.Initialize();
+            TreeView.Initialize();
+            AssetView.Initialize();
+            InspectorView.Initialize();
 
             Instance.DoReload = true;
             Reload();
@@ -81,24 +94,27 @@ namespace Automata.Editor
             OnSelectionChange();
         }
 
-        internal void ChangeTree(TreeBlueprint tree)
+        protected override void OnEditorDestroy()
         {
-            if (tree == null)
-            {
-                return;
-            }
-            CurrentTree = tree;
-            _TreeView.PopulateTree(CurrentTree);
-            _CurrentlyEditingLabel.text = $"Currently Editing: {CurrentTree.name}";
-            _AssetView.OnSelectionChanged();
+            InspectorView?.Deinitialize();
         }
 
-        internal void OnNodeSelectionChange(NodeView nodeView)
+        protected override void OnEditorEnable()
         {
-            _InspectorView.ChangeView(nodeView);
+            // bug: Weird Unity issue with Enable & Disable. Have to Deregister & Then Register.
+            OnEnteredEditMode -= OnSelectionChange;
+            OnEnteredPlayMode -= OnSelectionChange;
+            OnEnteredEditMode += OnSelectionChange;
+            OnEnteredPlayMode += OnSelectionChange;
         }
 
-        private void OnSelectionChange()
+        protected override void OnEditorDisable()
+        {
+            OnEnteredEditMode -= OnSelectionChange;
+            OnEnteredPlayMode -= OnSelectionChange;
+        }
+
+        protected override void OnEditorSelectionChange()
         {
             EditorApplication.delayCall += () =>
             {
@@ -122,58 +138,12 @@ namespace Automata.Editor
             };
         }
 
-        private void OnEnable()
-        {
-            // Ensure it is removed before adding it again. (werid unity issue).
-            EditorApplication.playModeStateChanged -= _OnPlayModeStateChanged;
-            EditorApplication.playModeStateChanged += _OnPlayModeStateChanged;
-        }
-
-        private void OnDisable()
-        {
-            EditorApplication.playModeStateChanged -= _OnPlayModeStateChanged;
-        }
-
         private void Reload()
         {
             SaveTree();
             ChangeTree(CurrentTree);
         }
 
-        private void SaveTree()
-        {
-            _TreeView.Save();
-        }
-
-        private void _OnPlayModeStateChanged(PlayModeStateChange change)
-        {
-            switch (change)
-            {
-                case PlayModeStateChange.EnteredEditMode:
-                    OnSelectionChange();
-                    break;
-
-                case PlayModeStateChange.EnteredPlayMode:
-                    OnSelectionChange();
-                    break;
-
-                case PlayModeStateChange.ExitingEditMode:
-                    _InspectorView?.ClearView();
-                    break;
-
-                case PlayModeStateChange.ExitingPlayMode:
-                    _InspectorView?.ClearView();
-
-                    break;
-            }
-        }
-
-        private void LoadSettings()
-        {
-            if (!AutomataEditorSettings.LoadSettings(out _Settings))
-            {
-                Instance.Close();
-            }
-        }
+        private void SaveTree() => TreeView.Save();
     }
 }

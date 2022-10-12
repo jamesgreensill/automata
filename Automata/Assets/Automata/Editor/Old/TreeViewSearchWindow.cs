@@ -1,9 +1,11 @@
 using Automata.Core.Types;
 using Automata.Core.Types.Attributes;
 using Automata.Core.Utility.Extensions;
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
+
 using UnityEditor;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine;
@@ -19,16 +21,15 @@ namespace Automata.Editor
         private Type[] _ContextTypes;
         private Type[] _BlacklistedTypes;
 
-        public void Configure(EditorWindow window, TreeView treeView, Type[] contextTypes, Type[] blackListedTypes = null)
+        public TreeViewSearchWindow Create(TreeView treeView)
         {
             _TreeView = treeView;
-            _EditorWindow = window;
-            _ContextTypes = contextTypes;
-            _BlacklistedTypes = blackListedTypes;
+            _EditorWindow = AutomataEditor.Instance;
 
             _IndentationIcon = new Texture2D(1, 1);
             _IndentationIcon.SetPixel(0, 0, new Color(0, 0, 0, 0));
             _IndentationIcon.Apply();
+            return this;
         }
 
         public List<SearchTreeEntry> CreateSearchTree(SearchWindowContext context)
@@ -85,28 +86,6 @@ namespace Automata.Editor
             }
 
             return false;
-        }
-
-        private void _AddTypeDataToSearchTree(Type type, ref List<SearchTreeEntry> tree)
-        {
-            tree.Add(new SearchTreeGroupEntry(new GUIContent(type.Name), 1));
-            var categoryAttributes = TypeEx.GetAttributes(type);
-            foreach (Attribute attribute in categoryAttributes)
-            {
-                if (attribute is CategoryAttribute categoryAttribute)
-                {
-                    var categoryDerivedTypes = TypeEx.GetDerivedTypes(type);
-                    foreach (Type categoryDerivedType in categoryDerivedTypes)
-                    {
-                        tree.Add(new SearchTreeEntry(new GUIContent(categoryDerivedType.Name, _IndentationIcon)
-                        )
-                        {
-                            level = 2,
-                            userData = categoryDerivedType
-                        });
-                    }
-                }
-            }
         }
     }
 }

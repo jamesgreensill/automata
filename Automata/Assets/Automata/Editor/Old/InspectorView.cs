@@ -9,6 +9,18 @@ namespace Automata.Editor
 
         private UnityEditor.Editor _Editor;
 
+        public void Initialize()
+        {
+            AutomataEditor.Instance.OnExitingEditMode += ClearView;
+            AutomataEditor.Instance.OnExitingPlayMode += ClearView;
+        }
+
+        public void Deinitialize()
+        {
+            AutomataEditor.Instance.OnExitingEditMode -= ClearView;
+            AutomataEditor.Instance.OnExitingPlayMode -= ClearView;
+        }
+
         public void ChangeView(NodeView nodeView)
         {
             // Clear the current View.

@@ -20,6 +20,7 @@ namespace Automata.Core.Types
     {
         public string Name;
         public Type Type;
+        public Type DisplayType;
         public PortDirection Direction;
         public PortCapacity Capacity;
         public Action<PortBlueprint, EdgeBlueprint> OnConnect;
@@ -30,12 +31,19 @@ namespace Automata.Core.Types
 
         private HashSet<EdgeBlueprint> _Connections;
 
-        public PortBlueprint(Type type, string name, PortDirection direction, PortCapacity capacity)
+        public PortBlueprint(Type type, string name, PortDirection direction, PortCapacity capacity) : this(type, type,
+            name, direction, capacity)
+        {
+          
+        }
+
+        public PortBlueprint(Type type, Type displayType, string name, PortDirection direction, PortCapacity capacity)
         {
             Type = type;
+            DisplayType = displayType;
             Direction = direction;
             Capacity = capacity;
-            Name = $"{name} : {type.Name}";
+            Name = $"{name} : {displayType.Name}";
             _Connections = new HashSet<EdgeBlueprint>();
         }
 

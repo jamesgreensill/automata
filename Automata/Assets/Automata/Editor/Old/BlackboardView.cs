@@ -34,7 +34,7 @@ namespace Automata.Editor
         //     _Editor = editor;
         // }
         //
-        // private void AddItemRequested(Blackboard blackboard)
+        // private void AddItemRequested(RuntimeBlackboard runtimeBlackboard)
         // {
         //     AddToBlackboard(new BlackboardValue(""));
         //     AddToBlackboard(new BlackboardValue(0));

@@ -37,6 +37,14 @@ namespace Automata.Core.Types
 
         public bool DeleteNode(NodeBlueprint nodeBlueprint)
         {
+            if (Root == nodeBlueprint)
+            {
+                Root = null;
+                AssetDatabase.RemoveObjectFromAsset(nodeBlueprint);
+                AssetDatabase.SaveAssets();
+                return true;
+            }
+
             if (Nodes.Remove(nodeBlueprint))
             {
                 AssetDatabase.RemoveObjectFromAsset(nodeBlueprint);

@@ -1,5 +1,29 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-6825393477294947776
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 52dba7d2314083242aa93729c54a40c8, type: 3}
+  m_Name: ANBP_EntryPoint
+  m_EditorClassIdentifier: 
+  InputPorts:
+  - Name: 'Input : NodeBlueprint'
+    Direction: 0
+    Capacity: 1
+  OutputPort:
+    Name: 'Output : NodeBlueprint'
+    Direction: 1
+    Capacity: 1
+  GraphPosition: {x: 11, y: -5}
+  ShouldDrawGizmos: 0
+  Guid: 3e884c7865a44c04c8d2d58443dd0b29
+  Capabilites: 0
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -12,5 +36,37 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1de86b129ee55b94591a3658857cb73e, type: 3}
   m_Name: TreeBlueprint
   m_EditorClassIdentifier: 
-  Root: {fileID: 0}
-  Nodes: []
+  Root: {fileID: -6825393477294947776}
+  Nodes:
+  - {fileID: -6825393477294947776}
+  - {fileID: 4725458558442104954}
+--- !u!114 &4725458558442104954
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 52dba7d2314083242aa93729c54a40c8, type: 3}
+  m_Name: ANBP_Log
+  m_EditorClassIdentifier: 
+  InputPorts:
+  - Name: 'Input : NodeBlueprint'
+    Direction: 0
+    Capacity: 1
+  - Name: 'Message : String'
+    Direction: 0
+    Capacity: 0
+  - Name: 'Position : Vector2'
+    Direction: 0
+    Capacity: 0
+  OutputPort:
+    Name: 'Output : NodeBlueprint'
+    Direction: 1
+    Capacity: 1
+  GraphPosition: {x: 423, y: 98}
+  ShouldDrawGizmos: 0
+  Guid: 5473288ec2fd33a4ab57a538a70175b5
+  Capabilites: 0

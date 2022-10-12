@@ -8,7 +8,6 @@ using UnityEngine;
 
 #if UNITY_EDITOR
 
-using Automata.Core.Types.Attributes;
 using UnityEditor.Experimental.GraphView;
 
 #endif
@@ -108,7 +107,7 @@ namespace Automata.Core.Types
 
         public void ReloadPorts()
         {
-            InputPorts = new List<PortBlueprint>()
+            InputPorts = new List<PortBlueprint>
             {
                 new PortBlueprint(typeof(NodeBlueprint), "Input", PortDirection.Input, PortCapacity.Multi)
             };
@@ -116,10 +115,10 @@ namespace Automata.Core.Types
                 new PortBlueprint(typeof(NodeBlueprint), "Output", PortDirection.Output, PortCapacity.Multi);
             foreach (FieldInfo fieldInfo in NodeType.GetFields())
             {
-                IEnumerable<PortAttribute> attributes = fieldInfo.GetCustomAttributes<PortAttribute>();
-                foreach (PortAttribute attribute in attributes)
+                if (fieldInfo.FieldType.GetGenericTypeDefinition() == typeof(BlackboardEntry<>))
                 {
-                    InputPorts.Add(new PortBlueprint(fieldInfo.FieldType, fieldInfo.Name, PortDirection.Input, PortCapacity.Single));
+                    Type[] typeDefinition = fieldInfo.FieldType.GetGenericArguments();
+                    InputPorts.Add(new PortBlueprint(fieldInfo.FieldType, typeDefinition[0], fieldInfo.Name, PortDirection.Input, PortCapacity.Single));
                 }
             }
         }

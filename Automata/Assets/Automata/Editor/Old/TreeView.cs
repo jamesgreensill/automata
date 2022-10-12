@@ -1,4 +1,5 @@
 using Automata.Core.Types;
+using Automata.Core.Types.Interfaces;
 using Automata.Core.Utility.Extensions;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,53 +12,103 @@ namespace Automata.Editor
 {
     public class TreeView : GraphView
     {
-        private GridBackground _Grid;
-        private ContentDragger _ContentDragger;
-        private SelectionDragger _SelectionDragger;
-        private RectangleSelector _RectangleSelector;
-        private ContentZoomer _ContentZoomer;
-        private TreeViewSearchWindow _SearchWindow;
-
-        private TreeBlueprint _CurrentTree;
-        private System.Action<NodeView> _OnNodeSelected;
-
-        //private List<BlackboardValue> _ExposedValues = new List<BlackboardValue>();
-
-        /*
-         *  ARCHIVED CODE
-         *  PURPOSE: BLACKBOARD VISUAL EDITOR
-         *  ARCHIVED BY: JAMES GREENSILL
-         */
-        // private BlackboardView _Blackboard;
-
         public new class UxmlFactory : UxmlFactory<TreeView, GraphView.UxmlTraits>
-        { }
-
-        public TreeView()
         {
-            _Grid = new GridBackground();
-            _ContentDragger = new ContentDragger();
-            _SelectionDragger = new SelectionDragger();
-            _RectangleSelector = new RectangleSelector();
-            _ContentZoomer = new ContentZoomer
-            {
-                minScale = 0.01f
-            };
         }
 
-        public void PopulateTree(TreeBlueprint tree)
+        /// <summary>
+        /// GraphView grid background.
+        /// </summary>
+        public GridBackground Grid = new GridBackground
+        {
+            visible = AutomataEditor.Settings.EditorSettings.GridVisible
+        };
+
+        /// <summary>
+        /// Content Dragger
+        /// </summary>
+        public ContentDragger ContentDragger = new ContentDragger
+        {
+            panSpeed = AutomataEditor.Settings.EditorSettings.PanSpeed,
+            clampToParentEdges = AutomataEditor.Settings.EditorSettings.ClampToParentEdges
+        };
+
+        /// <summary>
+        /// Selection Dragger
+        /// </summary>
+        public SelectionDragger SelectionDragger = new SelectionDragger
+        {
+            panSpeed = AutomataEditor.Settings.EditorSettings.PanSpeed,
+            clampToParentEdges = AutomataEditor.Settings.EditorSettings.ClampToParentEdges
+        };
+
+        /// <summary>
+        /// Content Zoomer
+        /// </summary>
+        public ContentZoomer ContentZoomer = new ContentZoomer
+        {
+            minScale = AutomataEditor.Settings.EditorSettings.MinScale
+        };
+
+        /// <summary>
+        /// RectangleSelector
+        /// </summary>
+        public RectangleSelector RectangleSelector = new RectangleSelector();
+
+        /// <summary>
+        /// SearchWindow
+        /// </summary>
+        public TreeViewSearchWindow SearchWindow;
+
+        /// <summary>
+        /// Current Tree Instance
+        /// </summary>
+        private TreeBlueprint _CurrentTree;
+
+        /// <summary>
+        /// Initialize the TreeView
+        /// </summary>
+        internal void Initialize()
+        {
+            // Add Manipulators
+            this.AddManipulator(ContentZoomer);
+            this.AddManipulator(ContentDragger);
+            this.AddManipulator(SelectionDragger);
+            this.AddManipulator(RectangleSelector);
+
+            // Add Search Menu
+            this._AddSearchMenu();
+
+            // Add Callbacks
+            this._AddCallbacks();
+
+            // Add grid
+            this.Insert(0, Grid);
+        }
+
+        /// <summary>
+        /// Activated when the Tree has changed.
+        /// </summary>
+        /// <param name="oldTree">Previous Tree</param>
+        /// <param name="newTree">Next Tree</param>
+        public void OnTreeChanged(TreeBlueprint oldTree, TreeBlueprint newTree)
+        {
+            SetTree(newTree);
+        }
+
+        /// <summary>
+        /// Populate the view with a new Tree.
+        /// </summary>
+        /// <param name="tree"></param>
+        public void SetTree(TreeBlueprint tree)
         {
             _DeleteElements();
             _CreateTree(tree);
-
-            /*
-             *  ARCHIVED CODE
-             *  PURPOSE: BLACKBOARD VISUAL EDITOR
-             *  ARCHIVED BY: JAMES GREENSILL
-             */
-            // _CreateBlackboard(runtimeTree);
         }
 
+        /// <summary>
+        /// Save current Tree.
+        /// </summary>
         public void Save()
         {
             if (_CurrentTree != null)
@@ -85,67 +136,62 @@ namespace Automata.Editor
             return node;
         }
 
-        internal void Initialize()
+        private void _AddSearchMenu()
         {
-            this.Insert(0, _Grid);
-            this.AddManipulator(_ContentZoomer);
-            this.AddManipulator(_ContentDragger);
-            this.AddManipulator(_SelectionDragger);
-            this.AddManipulator(_RectangleSelector);
-            this._AddSearchMenu();
-            this._AddCallbacks();
-
-            _LoadStyle("Assets/AI/BehaviourTreeV2/Editor/AutomataEditor.uss");
+            SearchWindow = ScriptableObject.CreateInstance<TreeViewSearchWindow>().Create(this);
+            nodeCreationRequest = context =>
+                UnityEditor.Experimental.GraphView.SearchWindow.Open(new SearchWindowContext(context.screenMousePosition), SearchWindow);
         }
 
-        private void _CreateTree(TreeBlueprint tree)
+        private void _AddCallbacks()
         {
-            if (tree == null)
-                return;
-            _CurrentTree = tree;
-            _CurrentTree.Nodes.ForEach(_CreateNodeView);
-            _CurrentTree.Nodes.ForEach(_CreateEdge);
-            if (_CurrentTree.Root == null)
-            {
-                if (_CurrentTree.CreateRoot())
+            AutomataEditor.Instance.OnTreeChanged += OnTreeChanged;
+        }
+
+        private GraphViewChange _OnGraphViewChanged(GraphViewChange graphViewChange)
+        {
+            // Remove elements from the Graph
+            if (graphViewChange.elementsToRemove != null)
+                foreach (GraphElement element in graphViewChange.elementsToRemove)
                 {
-                    EditorUtility.SetDirty(_CurrentTree);
-                    AssetDatabase.SaveAssets();
+                    switch (element)
+                    {
+                        case NodeView view:
+                            if (view.Node.IsDeletable(view))
+                            {
+                                _CurrentTree.DeleteNode(view.Node);
+                            }
+                            break;
+
+                        case Edge edge:
+                            if (edge.input.node is NodeView childView && edge.output.node is NodeView parentView)
+                            {
+                                _CurrentTree.RemoveChild(parentView.Node, childView.Node);
+                            }
+                            break;
+                    }
                 }
-            }
-            _SortTree();
-        }
 
-        private void _CreateEdge(NodeBlueprint node)
-        {
-            // if (node == null)
-            // {
-            //     return;
-            // }
-            //
-            // List<RuntimeNode> children = node.GetChildren();
-            //
-            // foreach (RuntimeNode child in children)
-            // {
-            //     NodeView parentView = _FindNodeView(node);
-            //     NodeView childView = _FindNodeView(child);
-            //
-            //     if (parentView != null & childView != null)
-            //     {
-            //         Edge edge = parentView.OutputPortBlueprint.ConnectTo(childView.InputPortBlueprint);
-            //         AddElement(edge);
-            //     }
-            // }
-        }
+            if (graphViewChange.edgesToCreate != null)
+                // Add all the edges
+                foreach (Edge element in graphViewChange.edgesToCreate)
+                {
+                    if (element.input.node is NodeView childView && element.output.node is NodeView parentView)
+                    {
+                        _CurrentTree.AddChild(parentView.Node, childView.Node);
+                    }
+                }
 
-        private NodeView _FindNodeView(NodeBlueprint node)
-        {
-            if (node != null)
+            // Sort the tree.
+            nodes.ForEach(node =>
             {
-                return GetNodeByGuid(node.Guid) as NodeView;
-            }
+                if (node is NodeView view)
+                {
+                    view.SortChildren(NodeView.SortByVerticalPosition);
+                }
+            });
 
-            return null;
+            return graphViewChange;
         }
 
         private void _DeleteElements()
@@ -158,104 +204,30 @@ namespace Automata.Editor
             graphViewChanged += _OnGraphViewChanged;
         }
 
-        private void _AddCallbacks()
+        private void _CreateEdge(NodeBlueprint node)
         {
-            _OnNodeSelected = AutomataEditor.Instance.OnNodeSelectionChange;
-
-            /*
-             * ARCHIVED CODE
-             * Purpose: Blackboard Visual Editor
-             * Archived By: James Greensill.
-             */
-
-            // RegisterCallback<DragUpdatedEvent>(OnDragUpdatedEvent);
-            // RegisterCallback<DragPerformEvent>(OnDragPerformEvent);
-        }
-
-        private GraphViewChange _OnGraphViewChanged(GraphViewChange graphViewChange)
-        {
-            _UpdateTree(graphViewChange.elementsToRemove);
-            _UpdateTree(graphViewChange.edgesToCreate);
-            _SortTree();
-            return graphViewChange;
-        }
-
-        private void _SortTree()
-        {
-            nodes.ForEach(node =>
+            if (node == null)
             {
-                if (node is NodeView view)
-                {
-                    view.SortChildren(NodeView.SortByVerticalPosition);
-                    // if (view.RuntimeNode is Composite composite)
-                    // {
-                    //     for (int i = 0; i < composite.Children.Count; i++)
-                    //     {
-                    //         var childView = _FindNodeView(composite.Children[i]);
-                    //         if (childView != null)
-                    //         {
-                    //             childView.title = $"[{i}] - " + composite.Children[i].name;
-                    //         }
-                    //     }
-                    //
-                    //     view.title = view.RuntimeNode.name + $" - [{composite.Children.Count}]";
-                    // }
-                }
-            });
-        }
-
-        private void _UpdateTree(List<GraphElement> elements)
-        {
-            if (elements == null)
                 return;
-            foreach (GraphElement element in elements)
-            {
-                switch (element)
-                {
-                    case NodeView view:
-                        if (view.Node.IsDeletable(view))
-                        {
-                            _CurrentTree.DeleteNode(view.Node);
-                        }
-                        break;
-
-                    case Edge edge:
-                        if (edge.input.node is NodeView childView && edge.output.node is NodeView parentView)
-                        {
-                            _CurrentTree.RemoveChild(parentView.Node, childView.Node);
-                        }
-                        break;
-                }
             }
-        }
 
-        private void _UpdateTree(List<Edge> elements)
-        {
-            if (elements == null)
-                return;
-            foreach (Edge element in elements)
+            var children = node.GetChildren();
+
+            foreach (INode<NodeBlueprint> child in children)
             {
-                if (element.input.node is NodeView childView && element.output.node is NodeView parentView)
+                NodeView parentView = GetNodeByGuid(node.Guid) as NodeView;
+                NodeView childView = GetNodeByGuid(child.Base.Guid) as NodeView;
+
+                if (parentView != null && childView != null)
                 {
-                    _CurrentTree.AddChild(parentView.Node, childView.Node);
+                    foreach (Port inputPort in childView.InputPorts)
+                    {
+                        if (inputPort.portType == typeof(NodeBlueprint))
+                        {
+                            AddElement(parentView.OutputPort.ConnectTo(inputPort));
+                        }
+                    }
                 }
-            }
-        }
-
-        private void _AddSearchMenu()
-        {
-            _SearchWindow = ScriptableObject.CreateInstance<TreeViewSearchWindow>();
-            _SearchWindow.Configure(AutomataEditor.Instance, this, new[] { typeof(Action), typeof(Decorator), typeof(Composite), typeof(Predicate) }, new[] { typeof(EntryPoint) });
-            nodeCreationRequest = context =>
-                SearchWindow.Open(new SearchWindowContext(context.screenMousePosition), _SearchWindow);
-        }
-
-        private void _LoadStyle(string stylePath)
-        {
-            StyleSheet styleSheet = AssetDatabase.LoadAssetAtPath<StyleSheet>(stylePath);
-            if (styleSheet)
-            {
-                styleSheets.Add(styleSheet);
             }
         }
 
@@ -265,59 +237,38 @@ namespace Automata.Editor
             {
                 var nodeView = new NodeView(node)
                 {
-                    OnNodeSelected = _OnNodeSelected,
+                    OnNodeSelected = AutomataEditor.Instance.InspectorView.ChangeView,
                 };
                 nodeView.capabilities = node.GetCapabilities(nodeView);
                 AddElement(nodeView);
             }
         }
 
-        /*
-         *  ARCHIVED CODE
-         *  PURPOSE: BLACKBOARD VISUAL EDITOR
-         *  ARCHIVED BY: JAMES GREENSILL
-         */
+        private void _CreateTree(TreeBlueprint tree)
+        {
+            if (tree == null)
+                return;
 
-        // public void OnDragUpdatedEvent(DragUpdatedEvent e)
-        // {
-        //     if (DragAndDrop.GetGenericData("DragSelection") is List<ISelectable> iselection && (iselection.OfType<BlackboardField>().Count() >= 0))
-        //     {
-        //         DragAndDrop.visualMode = e.actionKey ? DragAndDropVisualMode.Copy : DragAndDropVisualMode.Move;
-        //     }
-        // }
+            _CurrentTree = tree;
+            _CurrentTree.Nodes.ForEach(_CreateNodeView);
+            _CurrentTree.Nodes.ForEach(_CreateEdge);
 
-        // public void OnDragPerformEvent(DragPerformEvent e)
-        // {
-        //     var select = DragAndDrop.GetGenericData("DragSelection") as List<ISelectable>;
-        //     IEnumerable<BlackboardField> fields = select.OfType<BlackboardField>();
-        //     foreach (var field in fields)
-        //     {
-        //         //var node = CreateNode(typeof(Data), e.mousePosition, node1 =>
-        //         //{
-        //         //    var no = node1 as Data;
-        //         //    if (no != null)
-        //         //    {
-        //         //        no.Initialize(field.Value);
-        //         //    }
-        //         //});
-        //     }
-        // }
+            if (_CurrentTree.Root == null)
+            {
+                if (_CurrentTree.CreateRoot())
+                {
+                    EditorUtility.SetDirty(_CurrentTree);
+                    AssetDatabase.SaveAssets();
+                }
+            }
 
-        // private void _CreateBlackboard(RuntimeTree runtimeTree)
-        // {
-        //    // if (_Blackboard != null)
-        //    // {
-        //    //     _Blackboard.Initialize(_EditorWindow);
-        //    //     Add(_Blackboard);
-        //    //     return;
-        //    // }
-        //    // runtimeTree.BlackboardContainer = runtimeTree.CreateBlackboard();
-        //    //
-        //    // _Blackboard = new BlackboardView(this);
-        //    // _Blackboard.Initialize(_EditorWindow);
-        //    // //_Blackboard.PopulateBlackboard(runtimeTree.BlackboardContainer);
-        //    //
-        //    // Add(_Blackboard);
-        // }
+            nodes.ForEach(node =>
+            {
+                if (node is NodeView view)
+                {
+                    view.SortChildren(NodeView.SortByVerticalPosition);
+                }
+            });
+        }
     }
 }

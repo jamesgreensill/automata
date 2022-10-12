@@ -1,9 +1,3 @@
-GridBackground {
-    --grid-background-color: rgb(38, 38, 38);
-    --line-color: rgba(193, 196, 192, 0.1);
-    --thick-line-color: rgba(193, 196, 192, 0.1) --spacing 100;
-}
-
 .automata-asset-button {
     background-color: rgb(38, 38, 38);
     flex-grow: 0;
@@ -28,7 +22,6 @@ GridBackground {
     border-bottom-left-radius: 15px;
     border-top-right-radius: 15px;
     border-bottom-right-radius: 15px;
-    background-image: url('/Assets/ThirdParty/Feel/NiceVibrations/Demo/_Common/Sprites/NV7Dots.png');
     -unity-background-scale-mode: scale-and-crop;
     min-height: 65px;
 }
@@ -85,3 +78,8 @@ GridBackground {
     -unity-font-style: bold;
 }
 
+GridBackground {
+    --grid-background-color: rgb(100,100,100);
+    --gird-line-color: rgb(255,255,255);
+    --spacing: 15;
+}
